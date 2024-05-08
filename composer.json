@@ -6,8 +6,8 @@
     "homepage": "https://github.com/tonystark199x202x/tron-api",
     "authors": [
         {
-            "name": "Shamsudin Serderov",
-            "email": "steein.shamsudin@gmail.com"
+            "name": "Tony Stark",
+            "email": "tonystark199x202x@gmail.com"
         }
     ],
     "keywords": [
@@ -20,10 +20,10 @@
 
     "require": {
         "php": "^7.4",
-        "comely-io/data-types": "^1.0",
-        "guzzlehttp/guzzle": "^6.5",
-        "iexbase/web3.php": "^2.0.1",
-        "kornrunner/secp256k1": "^0.1.2",
+        "comely-io/data-types": "master",
+        "guzzlehttp/guzzle": "^7.5",
+        "kornrunner/secp256k1": "^0.2.0",
+        "web3p/web3.php": "dev-master",
         "simplito/elliptic-php": "^1.0",
         "ext-json": "*",
         "ext-bcmath": "*"

@@ -68,7 +68,7 @@ class TRC20Contract
      *
      * @var integer
      */
-    private int $feeLimit = 10;
+    private int $feeLimit = 30;
 
     /**
      * Base Tron object
@@ -321,6 +321,21 @@ class TRC20Contract
     }
 
     /**
+     *  TRC20 confirmed transactions
+     *
+     * @param string $address
+     * @param int $limit
+     * @return array
+     *
+     * @throws TronException
+     */
+    public function getConfirmedTransactions(string $address, int $limit = 100): array
+    {
+        return $this->_tron->getManager()
+            ->request("v1/accounts/{$address}/transactions/trc20?limit={$limit}&contract_address={$this->contractAddress}&only_confirmed=true", [], 'get');
+    }
+
+    /**
      * Get transaction info by contract address
      *
      * @throws TronException
@@ -389,5 +404,17 @@ class TRC20Contract
     public function cleanStr(string $str): string
     {
         return preg_replace('/[^\w.-]/', '', trim($str));
+    }
+
+    /**
+     * Set fee limit
+     *
+     * @param int $fee_limit
+     * @return TRC20Contract
+     */
+    public function setFeeLimit(int $fee_limit) : TRC20Contract
+    {
+        $this->feeLimit = $fee_limit;
+        return $this;
     }
 }

@@ -32,11 +32,12 @@ class TransactionBuilder
      *
      * @param string $to
      * @param float $amount
-     * @param string $from
+     * @param string|null $from
+     * @param string|null $message
      * @return array
      * @throws TronException
      */
-    public function sendTrx($to, $amount, string $from = null)
+    public function sendTrx(string $to, float $amount, string $from = null, string $message = null)
     {
         if ($amount < 0) {
             throw new TronException('Invalid amount provided');
@@ -53,13 +54,17 @@ class TransactionBuilder
             throw new TronException('Cannot transfer TRX to the same account');
         }
 
-        $response = $this->tron->getManager()->request('wallet/createtransaction', [
+        $options = [
             'to_address' => $to,
             'owner_address' => $from,
             'amount' => $this->tron->toTron($amount),
-        ]);
+        ];
 
-        return $response;
+        if(!is_null($message)) {
+            $params['extra_data'] = $this->tron->stringUtf8toHex($message);
+        }
+
+        return $this->tron->getManager()->request('wallet/createtransaction', $options);
     }
 
     /**
@@ -253,8 +258,11 @@ class TransactionBuilder
      * @return array
      * @throws TronException
      */
-    public function freezeBalance(float $amount = 0, int $duration = 3, string $resource = 'BANDWIDTH', string $address)
+    public function freezeBalance(float $amount = 0, int $duration = 3, string $resource = 'BANDWIDTH', string $address = null)
     {
+        if(empty($address))
+            throw new TronException('Address not specified');
+
         if (!in_array($resource, ['BANDWIDTH', 'ENERGY'])) {
             throw new TronException('Invalid resource provided: Expected "BANDWIDTH" or "ENERGY"');
         }
@@ -267,7 +275,7 @@ class TransactionBuilder
             throw new TronException('Invalid duration provided, minimum of 3 days');
         }
 
-        return $this->tron->getManager()->request('wallet/freezebalance', [
+        return $this->tron->getManager()->request('wallet/freezebalancev2', [
             'owner_address' => $this->tron->address2HexString($address),
             'frozen_balance' => $this->tron->toTron($amount),
             'frozen_duration' => $duration,
@@ -280,17 +288,21 @@ class TransactionBuilder
      * Unfreezing will remove bandwidth and TRON Power.
      *
      * @param string $resource
-     * @param string $owner_address
+     * @param string|null $owner_address
      * @return array
      * @throws TronException
      */
-    public function unfreezeBalance(string $resource = 'BANDWIDTH', string $owner_address)
+    public function unfreezeBalance(string $resource = 'BANDWIDTH', string $owner_address = null)
     {
+        if(is_null($owner_address)) {
+            throw new TronException('Owner Address not specified');
+        }
+
         if (!in_array($resource, ['BANDWIDTH', 'ENERGY'])) {
             throw new TronException('Invalid resource provided: Expected "BANDWIDTH" or "ENERGY"');
         }
 
-        return $this->tron->getManager()->request('wallet/unfreezebalance', [
+        return $this->tron->getManager()->request('wallet/unfreezebalancev2', [
             'owner_address' =>  $this->tron->address2HexString($owner_address),
             'resource' => $resource
         ]);
@@ -326,8 +338,12 @@ class TransactionBuilder
      * @return array
      * @throws TronException
      */
-    public function updateToken(string $description, string $url, int $freeBandwidth = 0, int $freeBandwidthLimit = 0, $address)
+    public function updateToken(string $description, string $url, int $freeBandwidth = 0, int $freeBandwidthLimit = 0, $address = null)
     {
+        if(is_null($address)) {
+            throw new TronException('Owner Address not specified');
+        }
+
         if (!is_integer($freeBandwidth) || $freeBandwidth < 0) {
             throw new TronException('Invalid free bandwidth amount provided');
         }

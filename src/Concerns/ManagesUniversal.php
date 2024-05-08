@@ -3,6 +3,7 @@ namespace IEXBase\TronAPI\Concerns;
 
 
 use IEXBase\TronAPI\Exception\ErrorException;
+use IEXBase\TronAPI\Exception\TronException;
 
 trait ManagesUniversal
 {
@@ -52,14 +53,15 @@ trait ManagesUniversal
     /**
      * We send funds to several addresses at once.
      *
-     * @param string $from
      * @param array $to
      * @param null $private_key
      * @param bool $isValid
+     * @param string|null $from
      * @return array
      * @throws ErrorException
+     * @throws TronException
      */
-    public function sendOneToMany(array $to, $private_key = null, $isValid = false, string $from): array
+    public function sendOneToMany(array $to, $private_key = null, bool $isValid = false, string $from = null): array
     {
         if(!is_null($private_key)) {
             $this->privateKey = $private_key;
